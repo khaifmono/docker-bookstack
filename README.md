@@ -114,7 +114,8 @@ To help you get started creating a container from this image you can either use 
 ### docker-compose (recommended, [click here for more info](https://docs.linuxserver.io/general/docker-compose))
 
 ```yaml
----
+version: "3.8"
+
 services:
   bookstack:
     image: lscr.io/linuxserver/bookstack:latest
@@ -123,18 +124,35 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - APP_URL=
-      - APP_KEY=
-      - DB_HOST=
+      - APP_URL=https://yourdomain.com
+      - APP_KEY=PasteYourAppKey
+      - DB_HOST=bookstack_db
       - DB_PORT=3306
-      - DB_USERNAME=
-      - DB_PASSWORD=
-      - DB_DATABASE=
-      - QUEUE_CONNECTION= #optional
+      - DB_USERNAME=bookstack
+      - DB_PASSWORD=YourStrongPassword
+      - DB_DATABASE=bookstack
+      - QUEUE_CONNECTION= # optional
     volumes:
       - /path/to/bookstack/config:/config
     ports:
       - 6875:80
+    depends_on:
+      - bookstack_db
+    restart: unless-stopped
+
+  bookstack_db:
+    image: lscr.io/linuxserver/mariadb:latest
+    container_name: bookstack_db
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - MYSQL_ROOT_PASSWORD=change_this_root_password
+      - MYSQL_DATABASE=bookstack
+      - MYSQL_USER=bookstack
+      - MYSQL_PASSWORD=YourStrongPassword
+    volumes:
+      - /path/to/mariadb/config:/config
     restart: unless-stopped
 ```
 
